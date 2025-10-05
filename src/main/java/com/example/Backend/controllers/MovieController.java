@@ -22,19 +22,25 @@ public class MovieController {
     public MovieController(MovieService service) { this.service = service; }
 
     @GetMapping
-    @Operation(summary = "Listar películas activas")
+    @Operation(
+            summary = "Listar películas activas",
+            description = "Devuelve todas las películas activas actualmente disponibles en cartelera."
+    )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Listado obtenido")
+            @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente")
     })
     public ResponseEntity<List<Movie>> list() {
         return new ResponseEntity<>(service.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Obtener película por ID")
+    @Operation(
+            summary = "Obtener película por ID",
+            description = "Devuelve la información completa de una película específica según su ID."
+    )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Encontrada"),
-            @ApiResponse(responseCode = "404", description = "No encontrada")
+            @ApiResponse(responseCode = "200", description = "Película encontrada"),
+            @ApiResponse(responseCode = "404", description = "Película no encontrada")
     })
     public ResponseEntity<Movie> get(@PathVariable String id) {
         Movie m = service.findById(id);
@@ -42,13 +48,28 @@ public class MovieController {
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-
     @PostMapping
+    @Operation(
+            summary = "Agregar nueva película",
+            description = "Permite al administrador agregar una película a la cartelera con sus respectivos datos."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Película creada correctamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos")
+    })
     public ResponseEntity<Movie> create(@RequestBody Movie m) {
         return new ResponseEntity<>(service.save(m), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @Operation(
+            summary = "Actualizar película",
+            description = "Actualiza los datos de una película existente. Solo accesible para el administrador."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Película actualizada correctamente"),
+            @ApiResponse(responseCode = "404", description = "Película no encontrada")
+    })
     public ResponseEntity<Movie> update(@PathVariable String id, @RequestBody Movie m) {
         Movie exist = service.findById(id);
         if (exist == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -57,6 +78,14 @@ public class MovieController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Eliminar película",
+            description = "Elimina una película del sistema. Solo accesible para el administrador."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Película eliminada correctamente"),
+            @ApiResponse(responseCode = "404", description = "Película no encontrada")
+    })
     public ResponseEntity<Void> delete(@PathVariable String id) {
         Movie exist = service.findById(id);
         if (exist == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
