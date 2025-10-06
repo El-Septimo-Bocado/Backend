@@ -23,10 +23,12 @@ public class ShowtimeController {
     public ShowtimeController(ShowtimeService service) { this.service = service; }
 
     @GetMapping
-    @Operation(summary = "Listar funciones por película",
-            description = "Usa ?movieId={id}")
+    @Operation(
+            summary = "Listar funciones por película",
+            description = "Devuelve todas las funciones disponibles filtradas por el parámetro ?movieId={id}."
+    )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Listado obtenido"),
+            @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente"),
             @ApiResponse(responseCode = "400", description = "Parámetros inválidos")
     })
     public ResponseEntity<List<Showtime>> listByMovie(@RequestParam String movieId) {
@@ -34,10 +36,13 @@ public class ShowtimeController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Obtener función por ID")
+    @Operation(
+            summary = "Obtener función por ID",
+            description = "Devuelve los detalles de una función específica, incluyendo horario y precio base."
+    )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Encontrada"),
-            @ApiResponse(responseCode = "404", description = "No encontrada")
+            @ApiResponse(responseCode = "200", description = "Función encontrada"),
+            @ApiResponse(responseCode = "404", description = "Función no encontrada")
     })
     public ResponseEntity<Showtime> get(@PathVariable String id) {
         Showtime s = service.findById(id);
