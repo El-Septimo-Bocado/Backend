@@ -19,6 +19,7 @@ public class UsuarioService {
 
     private void initSampleData() {
         Usuario juan = new Usuario("Juan Pérez", "juan@example.com", 30);
+        juan.setIsAdmin(true);
         Usuario maria = new Usuario("María López", "maria@example.com", 25);
         Usuario carlos = new Usuario("Carlos Ruiz", "carlos@example.com", 40);
         save(juan);

@@ -22,4 +22,12 @@ public class ShowtimeRepository {
         for (Showtime s : db) if (s.getMovieId().equals(movieId)) out.add(s);
         return out;
     }
+
+    public void deleteById(String id) {
+        for (int i=0;i<db.size();i++) {
+            if (db.get(i).getId().equals(id)) {
+                db.remove(i); return;
+            }
+        }
+    }
 }

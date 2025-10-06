@@ -21,4 +21,16 @@ public class SeatStatusRepository {
     public java.util.List<SeatStatus> findAllByShowtime(String showtimeId) {
         return db.values().stream().filter(ss -> ss.getShowtimeId().equals(showtimeId)).toList();
     }
+
+    public void deleteByShowtime(String showtimeId) {
+        java.util.List<String> keysToRemove = new java.util.ArrayList<>();
+        for (String k : db.keySet()) {
+            if (k.startsWith(showtimeId + "::")) keysToRemove.add(k);
+        }
+        for (String k : keysToRemove) db.remove(k);
+    }
+
+    public void delete(String showtimeId, String seatCode) {
+        db.remove(key(showtimeId, seatCode));
+    }
 }

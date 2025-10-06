@@ -7,9 +7,11 @@ public class Usuario {
     private String nombre;
     private String email;
     private int edad;
+    private boolean isAdmin;
 
     public Usuario() {
         this.id = UUID.randomUUID().toString();
+        this.isAdmin = false;
     }
 
     public Usuario(String nombre, String email, int edad) {
@@ -17,6 +19,7 @@ public class Usuario {
         this.nombre = nombre;
         this.email = email;
         this.edad = edad;
+        this.isAdmin = false;
     }
 
     // Getters y Setters
@@ -28,4 +31,6 @@ public class Usuario {
     public void setEmail(String email) { this.email = email; }
     public int getEdad() { return edad; }
     public void setEdad(int edad) { this.edad = edad; }
+    public boolean isAdmin() { return isAdmin; }
+    public void setIsAdmin(boolean isAdmin) { this.isAdmin = isAdmin; }
 }

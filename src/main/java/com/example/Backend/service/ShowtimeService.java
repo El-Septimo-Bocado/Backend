@@ -52,4 +52,8 @@ public class ShowtimeService {
     public List<Showtime> findAllByMovie(String movieId) {
         return repo.findAllByMovieId(movieId);
     }
+
+    public void deleteById(String id) {
+        repo.deleteById(id);
+    }
 }

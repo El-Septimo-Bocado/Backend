@@ -73,5 +73,29 @@ public class SeatingService {
             }
         }
     }
+    
+    public void deleteByShowtime(String showtimeId) {
+        repo.deleteByShowtime(showtimeId);
+    }
+    
+    public void forceFreeSeats(String showtimeId, java.util.List<String> seatCodes) {
+        for (String code : seatCodes) {
+            SeatStatus s = repo.find(showtimeId, code);
+            if (s != null) {
+                s.setStatus("FREE"); s.setHoldId(null); s.setHoldExpiresAt(0);
+                repo.save(s);
+            }
+        }
+    }
+    
+    public void forceSoldSeats(String showtimeId, java.util.List<String> seatCodes) {
+        for (String code : seatCodes) {
+            SeatStatus s = repo.find(showtimeId, code);
+            if (s != null) {
+                s.setStatus("SOLD"); s.setHoldId(null); s.setHoldExpiresAt(0);
+                repo.save(s);
+            }
+        }
+    }
 
 }
