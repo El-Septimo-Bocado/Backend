@@ -2,6 +2,7 @@ package com.example.Backend.controllers;
 
 import java.util.List;
 
+import com.example.Backend.enums.RolUsuario;
 import com.example.Backend.service.UsuarioService;
 import com.example.Backend.modelos.Usuario;
 
@@ -31,6 +32,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/api/usuarios")
 @Tag(name = "Usuarios", description = "API para la gestión de usuarios")
 public class UsuarioController {
+
     private final UsuarioService usuarioService;
 
     @Autowired
@@ -38,135 +40,102 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
+    // =========================
+    // Helpers
+    // =========================
+    private RolUsuario parseRol(String raw) {
+        if (raw == null) throw new IllegalArgumentException("ROL_REQUIRED");
+        switch (raw.trim().toUpperCase()) {
+            case "ADMIN": return RolUsuario.ADMIN;
+            case "USER":  return RolUsuario.USER;
+            default: throw new IllegalArgumentException("ROL_INVALID");
+        }
+    }
+
+    // =========================
+    // Endpoints
+    // =========================
     @GetMapping
-    @Operation(summary = "Obtener todos los usuarios", description = "Devuelve una lista de todos los usuarios registrados.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida con éxito"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
+    @Operation(summary = "Obtener todos los usuarios")
     public ResponseEntity<List<Usuario>> getAllUsuarios() {
-        List<Usuario> usuarios = usuarioService.findAll();
-        return new ResponseEntity<>(usuarios, HttpStatus.OK);
+        return ResponseEntity.ok(usuarioService.findAll());
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Obtener usuario por ID", description = "Devuelve un usuario específico basado en su ID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
-            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
-    })
-    public ResponseEntity<Usuario> getUsuarioById(@PathVariable @Parameter(description = "ID del usuario") String id) {
+    @Operation(summary = "Obtener usuario por ID")
+    @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    public ResponseEntity<Usuario> getUsuarioById(@PathVariable String id) {
         Usuario usuario = usuarioService.findById(id);
-        if (usuario != null) {
-            return new ResponseEntity<>(usuario, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return (usuario != null) ? ResponseEntity.ok(usuario)
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @PostMapping
-    @Operation(summary = "Crear un nuevo usuario", description = "Crea un nuevo usuario con los datos proporcionados.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Usuario creado con éxito"),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos")
-    })
-    public ResponseEntity<Usuario> createUsuario(@RequestBody @Parameter(description = "Datos del usuario a crear") Usuario usuario) {
-        Usuario newUsuario = usuarioService.save(usuario);
-        return new ResponseEntity<>(newUsuario, HttpStatus.CREATED);
+    @Operation(summary = "Crear usuario (no pone contraseña aquí; usar /api/auth/register)")
+    public ResponseEntity<Usuario> createUsuario(@RequestBody Usuario in) {
+        // Ignorar campos sensibles si vienen
+        in.setId(null);
+        in.setPasswordHash(null);          // la contraseña se gestiona en /api/auth/register
+        in.setRol(RolUsuario.USER);        // evita elevar rol por POST
+        Usuario created = usuarioService.save(in);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Actualizar un usuario", description = "Actualiza los datos de un usuario existente.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuario actualizado con éxito"),
-            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
-    })
-    public ResponseEntity<Usuario> updateUsuario(@PathVariable @Parameter(description = "ID del usuario") String id,
-                                                 @RequestBody @Parameter(description = "Datos actualizados del usuario") Usuario usuario) {
-        Usuario existingUsuario = usuarioService.findById(id);
-        if (existingUsuario != null) {
-            usuario.setId(id);
-            Usuario updatedUsuario = usuarioService.update(usuario);
-            return new ResponseEntity<>(updatedUsuario, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @Operation(summary = "Actualizar usuario (nombre/email). No toca password/rol/fecha.")
+    @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    public ResponseEntity<Usuario> updateUsuario(@PathVariable String id, @RequestBody Usuario in) {
+        Usuario existing = usuarioService.findById(id);
+        if (existing == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        // Merge seguro
+        if (in.getNombre() != null) existing.setNombre(in.getNombre());
+        if (in.getEmail()  != null) existing.setEmail(in.getEmail());
+
+        // No tocar:
+        // existing.setPasswordHash(...)
+        // existing.setRol(...)
+        // existing.setFechaRegistro(...)
+
+        Usuario updated = usuarioService.update(existing);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar un usuario", description = "Elimina un usuario basado en su ID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Usuario eliminado con éxito"),
-            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
-    })
-    public ResponseEntity<Void> deleteUsuario(@PathVariable @Parameter(description = "ID del usuario") String id) {
-        Usuario existingUsuario = usuarioService.findById(id);
-        if (existingUsuario != null) {
-            usuarioService.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @Operation(summary = "Eliminar usuario")
+    @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    public ResponseEntity<Void> deleteUsuario(@PathVariable String id) {
+        Usuario existing = usuarioService.findById(id);
+        if (existing == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        usuarioService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/buscar")
-    @Operation(summary = "Buscar usuarios por filtros", description = "Busca usuarios por nombre, email y edad.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuarios encontrados"),
-            @ApiResponse(responseCode = "400", description = "Parámetros inválidos")
-    })
+    @Operation(summary = "Buscar usuarios por filtros", description = "Busca por nombre y/o email")
     public ResponseEntity<List<Usuario>> buscarUsuarios(
-            @RequestParam @Parameter(description = "Nombre del usuario (parcial o completo)") String nombre,
-            @RequestParam(required = false) @Parameter(description = "Email del usuario (opcional)") String email,
-            @RequestParam @Parameter(description = "Edad del usuario") int edad) {
-        List<Usuario> usuarios = usuarioService.buscarPorFiltros(nombre, email);
-        return new ResponseEntity<>(usuarios, HttpStatus.OK);
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String email) {
+        return ResponseEntity.ok(usuarioService.buscarPorFiltros(nombre, email));
     }
 
-    @GetMapping("/auth")
-    public ResponseEntity<Usuario> getUserByToken(@RequestHeader("Authorization") String authHeader) {
-        if (authHeader == null || authHeader.isBlank()) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-        String token = authHeader.trim();
-        if (token.toLowerCase().startsWith("bearer ")) token = token.substring(7).trim();
-
-        Usuario usuario = usuarioService.findByAuthToken(token);
-        if (usuario != null) {
-            return new ResponseEntity<>(usuario, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-    }
-
-    // ====== CAMBIAR ROL DE USUARIO (ADMIN) ======
     @PutMapping("/{id}/role")
-    @Operation(
-            summary = "Cambiar rol de usuario",
-            description = "Actualiza el rol del usuario a USER o ADMIN"
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Rol actualizado"),
-            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
-            @ApiResponse(responseCode = "400", description = "Rol inválido")
-    })
-    public ResponseEntity<Usuario> updateRole(
-            @PathVariable @Parameter(description = "ID del usuario") String id,
-            @RequestBody @Parameter(description = "Nuevo rol (USER o ADMIN)") RoleDto body) {
-
+    @Operation(summary = "Cambiar rol de usuario (USER/ADMIN)")
+    @ApiResponse(responseCode = "400", description = "Rol inválido")
+    @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    public ResponseEntity<?> updateRole(@PathVariable String id, @RequestBody RoleDto body) {
         Usuario u = usuarioService.findById(id);
-        if (u == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (u == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
-        String newRole = (body == null || body.rol == null) ? "" : body.rol.trim().toUpperCase();
-        if (!newRole.equals("USER") && !newRole.equals("ADMIN")) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        try {
+            RolUsuario role = parseRol(body == null ? null : body.rol);
+            u.setRol(role);
+            Usuario up = usuarioService.update(u);
+            return ResponseEntity.ok(up);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
-
-        u.setRol(newRole);
-        Usuario up = usuarioService.update(u);
-        return new ResponseEntity<>(up, HttpStatus.OK);
     }
 
-    // DTO simple para el rol
     static class RoleDto { public String rol; }
 }
