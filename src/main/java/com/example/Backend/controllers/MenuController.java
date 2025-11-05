@@ -30,8 +30,7 @@ public class MenuController {
     @GetMapping
     @Operation(summary = "Obtener todos los productos del menú")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lista obtenida con éxito"),
-            @ApiResponse(responseCode = "500", description = "Error interno")
+            @ApiResponse(responseCode = "200", description = "Lista obtenida con éxito")
     })
     public ResponseEntity<List<MenuItem>> getAll() {
         return new ResponseEntity<>(service.findAll(), HttpStatus.OK);
@@ -43,7 +42,7 @@ public class MenuController {
             @ApiResponse(responseCode = "200", description = "Producto encontrado"),
             @ApiResponse(responseCode = "404", description = "No encontrado")
     })
-    public ResponseEntity<MenuItem> getById(@PathVariable @Parameter(description = "ID del producto") String id) {
+    public ResponseEntity<MenuItem> getById(@PathVariable String id) {
         MenuItem item = service.findById(id);
         return (item != null) ? new ResponseEntity<>(item, HttpStatus.OK)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -55,9 +54,8 @@ public class MenuController {
             @ApiResponse(responseCode = "201", description = "Creado con éxito"),
             @ApiResponse(responseCode = "400", description = "Datos inválidos")
     })
-    public ResponseEntity<MenuItem> create(@RequestBody @Parameter(description = "Datos del producto") MenuItem item) {
-        MenuItem created = service.save(item);
-        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    public ResponseEntity<MenuItem> create(@RequestBody MenuItem item) {
+        return new ResponseEntity<>(service.save(item), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
@@ -66,13 +64,11 @@ public class MenuController {
             @ApiResponse(responseCode = "200", description = "Actualizado con éxito"),
             @ApiResponse(responseCode = "404", description = "No encontrado")
     })
-    public ResponseEntity<MenuItem> update(@PathVariable String id,
-                                           @RequestBody @Parameter(description = "Datos actualizados") MenuItem item) {
+    public ResponseEntity<MenuItem> update(@PathVariable String id, @RequestBody MenuItem item) {
         MenuItem existing = service.findById(id);
         if (existing == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        item.setId(id);
-        MenuItem updated = service.update(item);
-        return new ResponseEntity<>(updated, HttpStatus.OK);
+        item.setId(Long.valueOf(id));
+        return new ResponseEntity<>(service.update(item), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -90,16 +86,12 @@ public class MenuController {
 
     @GetMapping("/buscar")
     @Operation(summary = "Buscar productos por filtros (nombre, categoría, activo, precio)")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Búsqueda exitosa"),
-            @ApiResponse(responseCode = "400", description = "Parámetros inválidos")
-    })
     public ResponseEntity<List<MenuItem>> buscar(
-            @RequestParam(required = false) @Parameter(description = "Nombre (parcial)") String nombre,
-            @RequestParam(required = false) @Parameter(description = "Categoría (BEBIDA, SNACK, COMBO, etc.)") String categoria,
-            @RequestParam(required = false) @Parameter(description = "Solo activos/inactivos") Boolean activo,
-            @RequestParam(required = false) @Parameter(description = "Precio mínimo") Double precioMin,
-            @RequestParam(required = false) @Parameter(description = "Precio máximo") Double precioMax) {
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String categoria, // usar 'plato'/'postre'/'bebida'
+            @RequestParam(required = false) Boolean activo,
+            @RequestParam(required = false) Integer precioMin,
+            @RequestParam(required = false) Integer precioMax) {
 
         return new ResponseEntity<>(
                 service.buscarPorFiltros(nombre, categoria, activo, precioMin, precioMax),

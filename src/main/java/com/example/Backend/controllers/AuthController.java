@@ -13,18 +13,24 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService auth;
 
-    record RegisterDto(String nombre, String email, int edad, String password) {}
+    // Solo lo necesario: nombre, email, password
+    record RegisterDto(String nombre, String email, String password) {}
     record LoginDto(String email, String password) {}
 
     static class UserView {
-        public String id, nombre, email, rol;
+        public Long id;
+        public String nombre;
+        public String email;
+        public String rol;
+
         UserView(Usuario u) {
             this.id = u.getId();
             this.nombre = u.getNombre();
             this.email = u.getEmail();
-            this.rol = u.getRol();
+            this.rol = String.valueOf(u.getRol());
         }
     }
+
     static class AuthResponse {
         public String token;
         public UserView user;
@@ -40,8 +46,8 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterDto dto) {
         try {
-            var r = auth.register(dto.nombre(), dto.email(), dto.edad(), dto.password());
-            return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(r.token, r.user));
+            var r = auth.register(dto.nombre(), dto.email(), dto.password());
+            return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(r.token(), r.user()));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("EMAIL_ALREADY_EXISTS");
         } catch (IllegalArgumentException e) {
@@ -53,15 +59,15 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginDto dto) {
         try {
             var r = auth.login(dto.email(), dto.password());
-            return ResponseEntity.ok(new AuthResponse(r.token, r.user));
+            return ResponseEntity.ok(new AuthResponse(r.token(), r.user()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("INVALID_CREDENTIALS");
         }
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> me(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader == null ? "" : authHeader.trim();
+    public ResponseEntity<?> me(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        String token = (authHeader == null) ? "" : authHeader.trim();
         if (token.toLowerCase().startsWith("bearer ")) token = token.substring(7).trim();
 
         var u = auth.me(token);
@@ -70,10 +76,9 @@ public class AuthController {
                 : ResponseEntity.ok(new UserView(u));
     }
 
-    //logout
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader == null ? "" : authHeader.trim();
+    public ResponseEntity<Void> logout(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        String token = (authHeader == null) ? "" : authHeader.trim();
         if (token.toLowerCase().startsWith("bearer ")) token = token.substring(7).trim();
         auth.logout(token);
         return ResponseEntity.noContent().build();

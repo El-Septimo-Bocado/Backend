@@ -74,7 +74,7 @@ public class MovieController {
     public ResponseEntity<Movie> update(@PathVariable String id, @RequestBody Movie m) {
         Movie exist = service.findById(id);
         if (exist == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        m.setId(id);
+        m.setId(Long.valueOf(id));
         return new ResponseEntity<>(service.update(m), HttpStatus.OK);
     }
 
