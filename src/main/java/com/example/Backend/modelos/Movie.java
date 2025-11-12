@@ -10,11 +10,11 @@ import java.util.UUID;
 @Entity
 @Table(name = "pelicula")
 public class Movie {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // títulos/strings con límites razonables (opcional)
     @Column(nullable = false, unique = true, length = 200)
     private String titulo;
 
@@ -24,30 +24,30 @@ public class Movie {
     @Column(length = 500)
     private String fondo;
 
+    @Column(length = 500)
+    private String caratula;
+
     @Column(length = 200)
     private String director;
 
-    // En BD la columna es singular "genero"
     @Column(name = "genero", length = 200)
     private String generos;
 
     @Column(length = 50)
     private String duracion;
 
-    // 👇 Tipo correcto para DECIMAL(3,1)
-    @Column(name = "calificacion", precision = 3, scale = 1)
-    private BigDecimal rating;
+    @Column(columnDefinition = "TEXT")
+    private String descripcion;
 
-    @Transient
+    @Column(name = "calificacion", precision = 2, scale = 1)
+    private BigDecimal rating; // de 0.0 a 5.0
+
     private boolean activo = true;
-
-    @Transient
-    private String caratula;
 
     @Transient
     private String trailerUrl;
 
-    // getters/setters
+    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -60,6 +60,9 @@ public class Movie {
     public String getFondo() { return fondo; }
     public void setFondo(String fondo) { this.fondo = fondo; }
 
+    public String getCaratula() { return caratula; }
+    public void setCaratula(String caratula) { this.caratula = caratula; }
+
     public String getDirector() { return director; }
     public void setDirector(String director) { this.director = director; }
 
@@ -69,14 +72,14 @@ public class Movie {
     public String getDuracion() { return duracion; }
     public void setDuracion(String duracion) { this.duracion = duracion; }
 
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+
     public BigDecimal getRating() { return rating; }
     public void setRating(BigDecimal rating) { this.rating = rating; }
 
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }
-
-    public String getCaratula() { return caratula; }
-    public void setCaratula(String caratula) { this.caratula = caratula; }
 
     public String getTrailerUrl() { return trailerUrl; }
     public void setTrailerUrl(String trailerUrl) { this.trailerUrl = trailerUrl; }

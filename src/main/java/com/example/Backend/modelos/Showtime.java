@@ -3,6 +3,7 @@ package com.example.Backend.modelos;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Entity
@@ -26,54 +27,44 @@ public class Showtime {
     @Column(name = "sala")
     private String sala;
 
+    @Column(name = "filas")
+    private Integer filas = 10;
+
+    @Column(name = "columnas")
+    private Integer columnas = 12;
+
     @Transient
     private String etiqueta;
 
-    public Long getId() {
-        return id;
-    }
+    // ===== getters / setters =====
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Movie getPelicula() { return pelicula; }
+    public void setPelicula(Movie pelicula) { this.pelicula = pelicula; }
 
-    public Movie getPelicula() {
-        return pelicula;
-    }
+    public LocalDateTime getFechaHora() { return fechaHora; }
+    public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }
 
-    public void setPelicula(Movie pelicula) {
-        this.pelicula = pelicula;
-    }
+    public Integer getBasePrice() { return basePrice; }
+    public void setBasePrice(Integer basePrice) { this.basePrice = basePrice; }
 
-    public LocalDateTime getFechaHora() {
-        return fechaHora;
-    }
+    public String getSala() { return sala; }
+    public void setSala(String sala) { this.sala = sala; }
 
-    public void setFechaHora(LocalDateTime fechaHora) {
-        this.fechaHora = fechaHora;
-    }
+    public Integer getFilas() { return filas; }
+    public void setFilas(Integer filas) { this.filas = filas; }
 
-    public Integer getBasePrice() {
-        return basePrice;
-    }
+    public Integer getColumnas() { return columnas; }
+    public void setColumnas(Integer columnas) { this.columnas = columnas; }
 
-    public void setBasePrice(Integer basePrice) {
-        this.basePrice = basePrice;
-    }
-
-    public String getSala() {
-        return sala;
-    }
-
-    public void setSala(String sala) {
-        this.sala = sala;
-    }
-
+    // Etiqueta calculada tipo "Vie 20:30 - Sala 1"
     public String getEtiqueta() {
-        return etiqueta;
+        if (fechaHora == null) return null;
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("EEE HH:mm");
+        String base = fechaHora.format(fmt);
+        return (sala == null || sala.isBlank()) ? base : (base + " - " + sala);
     }
 
-    public void setEtiqueta(String etiqueta) {
-        this.etiqueta = etiqueta;
-    }
+    public void setEtiqueta(String etiqueta) { this.etiqueta = etiqueta; } // por compatibilidad
 }

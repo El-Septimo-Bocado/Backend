@@ -39,7 +39,7 @@ public class SeatingService {
                 throw new RuntimeException("SEAT_ALREADY_TAKEN: " + code);
             }
         }
-        // Reservar (bloqueo temporal)
+        // Bloquear temporalmente
         for (String code : seatCodes) {
             SeatStatus s = seatRepo.findByShowtimeIdAndSeatCode(showtimeId, code).get();
             s.setStatus(SeatState.RESERVADO);
@@ -72,16 +72,21 @@ public class SeatingService {
         }
     }
 
-    /** Inicializa A1..A8 x filas A..F para una función nueva */
+    /** Inicializa mapa A1.. según filas/columnas de la función */
     @Transactional
     public void initForShowtime(Long showtimeId){
-        for (char row='A'; row<='F'; row++) {
-            for (int col=1; col<=8; col++) {
-                String code = row + String.valueOf(col);
+        Showtime st = showtimeRepo.findById(showtimeId)
+                .orElseThrow(() -> new RuntimeException("SHOWTIME_NOT_FOUND"));
+
+        int filas = (st.getFilas() != null && st.getFilas() > 0) ? st.getFilas() : 6;
+        int cols  = (st.getColumnas() != null && st.getColumnas() > 0) ? st.getColumnas() : 8;
+
+        for (int r = 0; r < filas; r++) {
+            char rowLetter = (char) ('A' + r);
+            for (int c = 1; c <= cols; c++) {
+                String code = rowLetter + String.valueOf(c);
                 if (seatRepo.findByShowtimeIdAndSeatCode(showtimeId, code).isEmpty()) {
                     SeatStatus s = new SeatStatus();
-                    Showtime st = showtimeRepo.findById(showtimeId)
-                            .orElseThrow(() -> new RuntimeException("SHOWTIME_NOT_FOUND"));
                     s.setShowtime(st);
                     s.setSeatCode(code);
                     s.setStatus(SeatState.DISPONIBLE);

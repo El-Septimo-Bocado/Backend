@@ -20,7 +20,6 @@ public class ShowtimeService {
         this.repo = repo;
         this.movies = movies;
         this.seating = seating;
-        // initSample();  <-- si quieres sembrar, asegúrate de tener películas primero
     }
 
     public Showtime save(Showtime s) {
@@ -34,10 +33,10 @@ public class ShowtimeService {
         return repo.findById(id).orElse(null);
     }
 
-    public java.util.List<Showtime> findAllByMovie(String movieIdStr) {
+    public List<Showtime> findAllByMovie(String movieIdStr) {
         Long movieId = Long.valueOf(movieIdStr);
         var m = movies.findById(movieId).orElse(null);
-        if (m == null) return java.util.List.of();
+        if (m == null) return List.of();
         return repo.findByPelicula(m);
     }
 }
