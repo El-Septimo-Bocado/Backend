@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/showtimes")
 @Tag(name = "Asientos", description = "Mapa, bloqueo y liberación de asientos por función")
-public class SeatingController {   // ✅ AHORA ES PUBLIC
+public class SeatingController {
     private final SeatingService seating;
 
     @Autowired
@@ -34,8 +35,15 @@ public class SeatingController {   // ✅ AHORA ES PUBLIC
         return ResponseEntity.ok(seating.getMap(showtimeId));
     }
 
+    // 🔹 Handler explícito para la preflight OPTIONS del POST /seats/hold
+    @RequestMapping(value = "/{showtimeId}/seats/hold", method = RequestMethod.OPTIONS)
+    public ResponseEntity<Void> corsHold(@PathVariable String showtimeId) {
+        return ResponseEntity.ok().build();
+    }
+
     record HoldReq(List<String> seatCodes){}
     record HoldRes(String holdId, long expiresAt){}
+
     @PostMapping("/{showtimeId}/seats/hold")
     @Operation(
             summary = "Bloquear asientos",
@@ -51,6 +59,7 @@ public class SeatingController {   // ✅ AHORA ES PUBLIC
     }
 
     record ReleaseReq(String holdId){}
+
     @PostMapping("/{showtimeId}/seats/release")
     @Operation(summary = "Liberar asientos", description = "Libera asientos previamente bloqueados.")
     @ApiResponses({ @ApiResponse(responseCode = "204", description = "Asientos liberados") })

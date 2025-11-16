@@ -55,11 +55,15 @@ public class MenuController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar item (ADMIN)")
+    @Operation(summary = "Marcar item como inactivo (ADMIN)")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         MenuItem existing = service.findById(id);
         if (existing == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        service.deleteById(id);
+
+        existing.setActivo(false);
+        existing.setEstado("INACTIVO");
+        service.update(existing);
+
         return ResponseEntity.noContent().build();
     }
 
