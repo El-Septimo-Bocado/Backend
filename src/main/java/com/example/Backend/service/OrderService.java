@@ -92,26 +92,35 @@ public class OrderService {
         return saved;
     }
 
+    // ⬇⬇⬇ *** AQUÍ ES LO ÚNICO IMPORTANTE QUE CAMBIA *** ⬇⬇⬇
     @Transactional
     public Order pay(String orderIdStr, String holdId) {
         Long orderId = Long.valueOf(orderIdStr);
-        Order o = orderRepo.findById(orderId).orElseThrow(() -> new RuntimeException("ORDER_NOT_FOUND"));
-        seating.confirmSold(String.valueOf(o.getShowtime().getId()), holdId);
+        Order o = orderRepo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("ORDER_NOT_FOUND"));
 
-        // asociar reserva en los asientos OCUPADO
-        var seats = seatRepo.findByShowtimeId(Long.valueOf(o.getShowtime().getId()));
-        for (SeatStatus s : seats) {
-            if (s.getStatus() == SeatState.OCUPADO && holdId.equals(s.getHoldId())) {
-                s.setReserva(o);
-                s.setHoldId(null);
-                s.setHoldExpiresAt(null);
-                seatRepo.save(s);
-            }
+        // 1) Tomamos los asientos que están bloqueados con ese holdId
+        var seats = seatRepo.findByShowtimeIdAndHoldId(o.getShowtime().getId(), holdId);
+        if (seats.isEmpty()) {
+            throw new RuntimeException("HOLD_EMPTY_OR_EXPIRED");
         }
 
+        // 2) Los asociamos a la reserva (Order) ANTES de confirmar la venta
+        for (SeatStatus s : seats) {
+            s.setReserva(o);
+            seatRepo.save(s);
+        }
+
+        // 3) Confirmamos la venta:
+        //    - SeatingService.confirmSold pone status = OCUPADO
+        //    - y limpia holdId/holdExpiresAt
+        seating.confirmSold(String.valueOf(o.getShowtime().getId()), holdId);
+
+        // 4) Marcamos la orden como pagada
         o.setStatus("PAGADA");
         return orderRepo.save(o);
     }
+    // ⬆⬆⬆ *** FIN DEL CAMBIO *** ⬆⬆⬆
 
     @Transactional(readOnly = true)
     public com.example.Backend.dto.ReceiptDto receipt(String orderIdStr) {

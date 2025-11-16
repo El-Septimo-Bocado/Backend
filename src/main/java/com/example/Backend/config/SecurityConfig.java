@@ -13,10 +13,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // <- importante para @PreAuthorize
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtFilter;
@@ -26,30 +29,58 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
+
+        http
+                // 🔹 CORS integrado aquí
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(List.of(
+                            "http://127.0.0.1:5500",
+                            "http://localhost:5500"
+                    ));
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedHeaders(List.of("*"));
+                    // no estás usando cookies del navegador contra el back
+                    config.setAllowCredentials(false);
+                    return config;
+                }))
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(sm ->
+                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authorizeHttpRequests(auth -> auth
-                        // swagger y salud
+
+                        // 🔹 Permitir preflight OPTIONS
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // 🔹 Swagger y raíz
                         .requestMatchers("/", "/error",
                                 "/swagger-ui.html", "/swagger-ui/**",
                                 "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
 
-                        // auth público (login/register)
+                        // 🔹 Auth (login/register)
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // lecturas públicas:
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/movies/**", "/api/menu/**", "/api/showtimes/**").permitAll()
+                        // 🔹 TODO showtimes público (GET + POST holds + release)
+                        .requestMatchers("/api/showtimes/**").permitAll()
 
-                        // todo lo demás requiere estar autenticado (y ya controlamos por anotaciones)
+                        // 🔹 Órdenes también públicas por ahora (crear, pagar, recibo)
+                        .requestMatchers("/api/orders/**").permitAll()
+
+                        // 🔹 Lecturas de movies/menu (ya cubiertas, pero por claridad)
+                        .requestMatchers("/api/movies/**", "/api/menu/**").permitAll()
+
+                        // 🔹 El resto sí requiere login
                         .anyRequest().authenticated()
                 );
 
-        // Inserta el filtro JWT antes del UsernamePasswordAuthenticationFilter
-        http.addFilterBefore(jwtFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

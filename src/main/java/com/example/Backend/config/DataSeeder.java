@@ -1,11 +1,15 @@
 package com.example.Backend.config;
 
+import com.example.Backend.enums.RolUsuario;
 import com.example.Backend.modelos.MenuItem;
 import com.example.Backend.modelos.Movie;
 import com.example.Backend.modelos.Showtime;
+import com.example.Backend.modelos.Usuario;
 import com.example.Backend.repository.MenuItemRepository;
 import com.example.Backend.repository.MovieRepository;
 import com.example.Backend.repository.ShowtimeRepository;
+import com.example.Backend.repository.UsuarioRepository;
+import com.example.Backend.service.AuthService;
 import com.example.Backend.service.SeatingService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
@@ -15,6 +19,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 @Component
 public class DataSeeder {
 
@@ -23,22 +28,51 @@ public class DataSeeder {
     private final ShowtimeRepository showtimes;
     private final SeatingService seating;
 
+    // 🔹 NUEVO: repositorio + servicio para usuarios
+    private final UsuarioRepository usuarios;
+    private final AuthService auth;
+
     public DataSeeder(MovieRepository movies,
                       MenuItemRepository menu,
                       ShowtimeRepository showtimes,
-                      SeatingService seating) {
+                      SeatingService seating,
+                      UsuarioRepository usuarios,
+                      AuthService auth) {
         this.movies = movies;
         this.menu = menu;
         this.showtimes = showtimes;
         this.seating = seating;
+        this.usuarios = usuarios;
+        this.auth = auth;
     }
 
     @PostConstruct
     @Transactional
     public void seed() {
+        seedAdmin();     // 🔹 primero creamos admin si no existe
         seedMovies();
         seedMenu();
         seedShowtimes();
+    }
+
+    // ======================================================
+    // 👑 Admin inicial
+    // ======================================================
+    private void seedAdmin() {
+        String adminEmail = "admin@septimobocado.local";
+        String adminPass  = "admin123";
+
+        if (usuarios.existsByEmail(adminEmail)) {
+            return;
+        }
+
+        var result = auth.register("Admin", adminEmail, adminPass);
+        Usuario u = result.user();
+
+        u.setRol(RolUsuario.ADMIN);
+        usuarios.save(u);
+
+        System.out.println("✅ Admin inicial creado: " + adminEmail + " / " + adminPass);
     }
 
     // ======================================================
@@ -59,7 +93,8 @@ public class DataSeeder {
         m.setDuracion("136 min");
         m.setDescripcion("Beatrix Kiddo continúa su camino de venganza, enfrentando a los últimos miembros del Escuadrón Asesino Víbora.");
         m.setRating(new BigDecimal("4.5"));
-        m.setActivo(true);
+        m.setEstado("ACTIVA");   // 🔹 estado inicial
+        m.setActivo(true);       // 🔹 por si lo usas también
         movies.save(m);
 
         m = new Movie();
@@ -72,6 +107,7 @@ public class DataSeeder {
         m.setDuracion("108 min");
         m.setDescripcion("Marty McFly viaja al futuro para evitar que su hijo arruine la vida de la familia McFly, pero algo sale mal.");
         m.setRating(new BigDecimal("4.8"));
+        m.setEstado("ACTIVA");
         m.setActivo(true);
         movies.save(m);
 
@@ -85,6 +121,7 @@ public class DataSeeder {
         m.setDuracion("120 min");
         m.setDescripcion("La historia de Mark Zuckerberg y la creación de Facebook: ambición, traición y éxito en la era digital.");
         m.setRating(new BigDecimal("4.2"));
+        m.setEstado("ACTIVA");
         m.setActivo(true);
         movies.save(m);
 
@@ -98,6 +135,7 @@ public class DataSeeder {
         m.setDuracion("140 min");
         m.setDescripcion("La caída de Anakin Skywalker al lado oscuro y el nacimiento del Imperio Galáctico.");
         m.setRating(new BigDecimal("4.7"));
+        m.setEstado("ACTIVA");
         m.setActivo(true);
         movies.save(m);
 
@@ -111,10 +149,11 @@ public class DataSeeder {
         m.setDuracion("92 min");
         m.setDescripcion("El detective Hoffman continúa con el legado de Jigsaw, pero alguien más podría conocer su secreto.");
         m.setRating(new BigDecimal("3.5"));
+        m.setEstado("ACTIVA");
         m.setActivo(true);
         movies.save(m);
 
-        System.out.println("✅ Películas iniciales creadas");
+        System.out.println("✅ Películas iniciales creadas (todas en estado ACTIVA)");
     }
 
     // ======================================================

@@ -25,9 +25,7 @@ public class MovieController {
         this.service = service;
     }
 
-
     // 📄 1. Listar todas las películas
-
     @GetMapping
     @Operation(summary = "Listar todas las películas")
     @ApiResponse(responseCode = "200", description = "OK")
@@ -36,7 +34,6 @@ public class MovieController {
     }
 
     // 🔍 2. Obtener una película por ID
-
     @GetMapping("/{id}")
     @Operation(summary = "Obtener película por ID")
     @ApiResponses({
@@ -50,9 +47,7 @@ public class MovieController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-
     // 🧩 3. Crear película (ADMIN)
-
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @Operation(summary = "Crear nueva película (solo ADMIN)")
@@ -62,9 +57,7 @@ public class MovieController {
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-
     // 🛠️ 4. Actualizar película (ADMIN)
-
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar película existente (solo ADMIN)")
@@ -82,22 +75,25 @@ public class MovieController {
         return ResponseEntity.ok(updated);
     }
 
-
-    // ❌ 5. Eliminar película (ADMIN)
-    
+    // ❌ 5. Eliminar película/ deshabilitar (ADMIN)
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar película por ID (solo ADMIN)")
+    @Operation(summary = "Eliminar (desactivar) película por ID (solo ADMIN)")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Eliminada correctamente"),
+            @ApiResponse(responseCode = "204", description = "Desactivada correctamente"),
             @ApiResponse(responseCode = "404", description = "No encontrada")
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         Movie exist = service.findById(id);
-        if (exist == null)
+        if (exist == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
 
-        service.deleteById(id);
+        exist.setActivo(false);
+
+        service.save(exist);
+
         return ResponseEntity.noContent().build();
     }
+
 }

@@ -16,8 +16,15 @@ public class MenuItemService {
     }
 
     public MenuItem save(MenuItem item) {
-        // forzamos categoria en minúscula para coincidir con ENUM de BD
-        if (item.getCategoria() != null) item.setCategoria(item.getCategoria().toLowerCase());
+        if (item.getCategoria() != null) {
+            item.setCategoria(item.getCategoria().toLowerCase());
+        }
+
+        // si no trae estado, lo definimos según activo
+        if (item.getEstado() == null || item.getEstado().isBlank()) {
+            item.setEstado(item.isActivo() ? "ACTIVO" : "INACTIVO");
+        }
+
         return repo.save(item);
     }
 
@@ -30,7 +37,14 @@ public class MenuItemService {
     }
 
     public MenuItem update(MenuItem item) {
-        if (item.getCategoria() != null) item.setCategoria(item.getCategoria().toLowerCase());
+        if (item.getCategoria() != null) {
+            item.setCategoria(item.getCategoria().toLowerCase());
+        }
+
+        if (item.getEstado() == null || item.getEstado().isBlank()) {
+            item.setEstado(item.isActivo() ? "ACTIVO" : "INACTIVO");
+        }
+
         return repo.save(item);
     }
 
@@ -50,7 +64,7 @@ public class MenuItemService {
             boolean byCategoria = (categoriaSafe == null) ||
                     (item.getCategoria() != null && item.getCategoria().equalsIgnoreCase(categoriaSafe));
 
-            // activo es @Transient; si lo quieres filtrar, vale solo en lo que trae la app
+            // activo se guarda en BD, así que el filtro sí es real y se apica
             boolean byActivo = (activo == null) || (item.isActivo() == activo);
 
             boolean byMin = (precioMin == null) || (item.getPrecio() != null && item.getPrecio() >= precioMin);

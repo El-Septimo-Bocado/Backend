@@ -42,12 +42,25 @@ public class Movie {
     @Column(name = "calificacion", precision = 2, scale = 1)
     private BigDecimal rating; // de 0.0 a 5.0
 
+    /**
+     * Nuevo campo para manejar:
+     * ACTIVA / PROXIMAMENTE / INACTIVA
+     */
+    @Column(length = 20)
+    private String estado = "ACTIVA";
+
+    /**
+     * Se mantiene para compatibilidad con front/otros lugares:
+     * - ACTIVA / PROXIMAMENTE => activo = true
+     * - INACTIVA             => activo = false
+     */
     private boolean activo = true;
 
     @Transient
     private String trailerUrl;
 
-    // Getters y Setters
+    // ========= Getters y Setters ==========
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -80,6 +93,9 @@ public class Movie {
 
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }
+
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 
     public String getTrailerUrl() { return trailerUrl; }
     public void setTrailerUrl(String trailerUrl) { this.trailerUrl = trailerUrl; }

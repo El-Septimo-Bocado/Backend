@@ -31,14 +31,20 @@ public class MenuItem {
     @Column(nullable = false)
     private String categoria;
 
-    // Estos dos no existen en la BD: quedan como datos calculados/temporales
+    // Este no existen en la BD: queda como un dato calculado/temporal
     @Transient
     private int stock;
 
-    @Transient
+    @Column(nullable = false)
     private boolean activo = true;
 
+    @Column(length = 20)
+    private String estado = "ACTIVO";
+
     // ===== getters/setters =====
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
