@@ -157,6 +157,84 @@ public class DataSeeder {
     }
 
     // ======================================================
+    // 🎬 Próximamente (estado PROXIMAMENTE)
+    // ======================================================
+        private void seedUpcomingMovies() {
+            // Evita duplicados
+            long upcomingCount = movies.findAll()
+                    .stream()
+                    .filter(m -> "PROXIMAMENTE".equalsIgnoreCase(m.getEstado()))
+                    .count();
+
+            if (upcomingCount > 0) return;
+
+            Movie m;
+
+            // 1. Demon Slayer: Kimetsu no Yaiba – Infinity Castle
+            m = new Movie();
+            m.setTitulo("Demon Slayer: Kimetsu no Yaiba – Infinity Castle");
+            m.setPoster("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688551/demon-slayer-poster_rbjasc.jpg"); // reemplazar por el tuyo
+            m.setFondo("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688535/demon_mwf5lb.jpg");
+            m.setCaratula("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688543/kimetsu_sbmbya.png");
+            m.setDirector("Haruo Sotozaki");
+            m.setGeneros("Acción, Fantasía, Shonen");
+            m.setDuracion("—");
+            m.setDescripcion("El arco final del anime donde Tanjiro y los pilares invaden el Castillo Infinito para enfrentar a Muzan Kibutsuji. Adaptación cinematográfica del clímax del manga.");
+            m.setRating(new BigDecimal("0.0"));
+            m.setEstado("PROXIMAMENTE");
+            m.setActivo(true);
+            movies.save(m);
+
+            // 2. Supergirl (DC Universe de James Gunn)
+            m = new Movie();
+            m.setTitulo("Supergirl");
+            m.setPoster("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688551/supergirl-poster_da7zg6.jpg");
+            m.setFondo("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688542/supergirl_iabhnz.jpg");
+            m.setCaratula("https://res.cloudinary.com/dxpgzf01b/image/upload/v1/supergirl_cover.png");
+            m.setDirector("James Gunn (productor general)");
+            m.setGeneros("Acción, Superhéroes");
+            m.setDuracion("—");
+            m.setDescripcion("Nueva versión de Supergirl dentro del relanzado DC Universe de James Gunn. Presentará una Kara Zor-El más madura, endurecida por sus experiencias y muy diferente a la versión tradicional.");
+            m.setRating(new BigDecimal("0.0"));
+            m.setEstado("PROXIMAMENTE");
+            m.setActivo(true);
+            movies.save(m);
+
+            // 3. Spider-Man: Brand New Day
+            m = new Movie();
+            m.setTitulo("Spider-Man: Brand New Day");
+            m.setPoster("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688551/spider-brand-poster_xo4bwx.jpg");
+            m.setFondo("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688542/spider_cgbu8d.jpg");
+            m.setCaratula("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688549/spiderman_zgxwe8.png");
+            m.setDirector("—");
+            m.setGeneros("Acción, Superhéroes");
+            m.setDuracion("—");
+            m.setDescripcion("Inspirada en la famosa etapa del cómic donde la vida de Peter Parker cambia por completo tras 'One More Day'. La película aún no ha sido estrenada ni confirmada oficialmente.");
+            m.setRating(new BigDecimal("0.0"));
+            m.setEstado("PROXIMAMENTE");
+            m.setActivo(true);
+            movies.save(m);
+
+            // 4. Batman Azteca
+            m = new Movie();
+            m.setTitulo("Batman Azteca: Choque de Imperios");
+            m.setPoster("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688549/batman-azteca-poster_wdduxm.jpg");
+            m.setFondo("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688535/batmanazteca_z7kl01.jpg");
+            m.setCaratula("https://res.cloudinary.com/dxpgzf01b/image/upload/v1/batman_azteca_cover.png");
+            m.setDirector("Juan Meza-León");
+            m.setGeneros("Acción, Animación, Cultura prehispánica");
+            m.setDuracion("—");
+            m.setDescripcion("Una reinvención mexicana de Batman ambientada en el Imperio Azteca. La historia sigue a Yohualli Coatl, un joven cuyo padre es asesinado por conquistadores españoles.");
+            m.setRating(new BigDecimal("0.0"));
+            m.setEstado("PROXIMAMENTE");
+            m.setActivo(true);
+            movies.save(m);
+
+            System.out.println("🎬 Películas 'PRÓXIMAMENTE' agregadas.");
+        }
+
+
+    // ======================================================
     // 🍔 Menú inicial
     // ======================================================
     private void seedMenu() {
