@@ -173,9 +173,9 @@ public class DataSeeder {
             // 1. Demon Slayer: Kimetsu no Yaiba – Infinity Castle
             m = new Movie();
             m.setTitulo("Demon Slayer: Kimetsu no Yaiba – Infinity Castle");
-            m.setPoster("https://res.cloudinary.com/dxpgzf01b/image/upload/v1/demon_slayer_infinity_castle.jpg"); // reemplazar por el tuyo
-            m.setFondo("https://res.cloudinary.com/dxpgzf01b/image/upload/v1/demon_slayer_bg.jpg");
-            m.setCaratula("https://res.cloudinary.com/dxpgzf01b/image/upload/v1/demon_slayer_cover.png");
+            m.setPoster("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688551/demon-slayer-poster_rbjasc.jpg"); // reemplazar por el tuyo
+            m.setFondo("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688535/demon_mwf5lb.jpg");
+            m.setCaratula("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688543/kimetsu_sbmbya.png");
             m.setDirector("Haruo Sotozaki");
             m.setGeneros("Acción, Fantasía, Shonen");
             m.setDuracion("—");
@@ -188,8 +188,8 @@ public class DataSeeder {
             // 2. Supergirl (DC Universe de James Gunn)
             m = new Movie();
             m.setTitulo("Supergirl");
-            m.setPoster("https://res.cloudinary.com/dxpgzf01b/image/upload/v1/supergirl_poster.jpg");
-            m.setFondo("https://res.cloudinary.com/dxpgzf01b/image/upload/v1/supergirl_bg.jpg");
+            m.setPoster("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688551/supergirl-poster_da7zg6.jpg");
+            m.setFondo("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688542/supergirl_iabhnz.jpg");
             m.setCaratula("https://res.cloudinary.com/dxpgzf01b/image/upload/v1/supergirl_cover.png");
             m.setDirector("James Gunn (productor general)");
             m.setGeneros("Acción, Superhéroes");
@@ -203,9 +203,9 @@ public class DataSeeder {
             // 3. Spider-Man: Brand New Day
             m = new Movie();
             m.setTitulo("Spider-Man: Brand New Day");
-            m.setPoster("https://res.cloudinary.com/dxpgzf01b/image/upload/v1/spiderman_brand_new_day.jpg");
-            m.setFondo("https://res.cloudinary.com/dxpgzf01b/image/upload/v1/spiderman_bg.jpg");
-            m.setCaratula("https://res.cloudinary.com/dxpgzf01b/image/upload/v1/spiderman_cover.png");
+            m.setPoster("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688551/spider-brand-poster_xo4bwx.jpg");
+            m.setFondo("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688542/spider_cgbu8d.jpg");
+            m.setCaratula("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688549/spiderman_zgxwe8.png");
             m.setDirector("—");
             m.setGeneros("Acción, Superhéroes");
             m.setDuracion("—");
@@ -218,8 +218,8 @@ public class DataSeeder {
             // 4. Batman Azteca
             m = new Movie();
             m.setTitulo("Batman Azteca: Choque de Imperios");
-            m.setPoster("https://res.cloudinary.com/dxpgzf01b/image/upload/v1/batman_azteca.jpg");
-            m.setFondo("https://res.cloudinary.com/dxpgzf01b/image/upload/v1/batman_azteca_bg.jpg");
+            m.setPoster("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688549/batman-azteca-poster_wdduxm.jpg");
+            m.setFondo("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688535/batmanazteca_z7kl01.jpg");
             m.setCaratula("https://res.cloudinary.com/dxpgzf01b/image/upload/v1/batman_azteca_cover.png");
             m.setDirector("Juan Meza-León");
             m.setGeneros("Acción, Animación, Cultura prehispánica");
