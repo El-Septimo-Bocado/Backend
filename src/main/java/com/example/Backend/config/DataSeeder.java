@@ -51,6 +51,7 @@ public class DataSeeder {
     public void seed() {
         seedAdmin();     // 🔹 primero creamos admin si no existe
         seedMovies();
+        seedUpcomingMovies();
         seedMenu();
         seedShowtimes();
     }
