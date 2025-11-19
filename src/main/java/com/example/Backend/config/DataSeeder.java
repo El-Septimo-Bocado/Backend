@@ -51,6 +51,7 @@ public class DataSeeder {
     public void seed() {
         seedAdmin();     // 🔹 primero creamos admin si no existe
         seedMovies();
+        seedUpcomingMovies();
         seedMenu();
         seedShowtimes();
     }
@@ -218,7 +219,7 @@ public class DataSeeder {
             // 4. Batman Azteca
             m = new Movie();
             m.setTitulo("Batman Azteca: Choque de Imperios");
-            m.setPoster("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688549/batman-azteca-poster_wdduxm.jpg");
+            m.setPoster("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688549/batman-azteca-poster_wdduxm.jpga");
             m.setFondo("https://res.cloudinary.com/dxpgzf01b/image/upload/v1759688535/batmanazteca_z7kl01.jpg");
             m.setCaratula("https://res.cloudinary.com/dxpgzf01b/image/upload/v1/batman_azteca_cover.png");
             m.setDirector("Juan Meza-León");
