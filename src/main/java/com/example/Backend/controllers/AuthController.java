@@ -26,6 +26,8 @@ public class AuthController {
     // DTOs mínimos
     record RegisterDto(String nombre, String email, String password) {}
     record LoginDto(String email, String password) {}
+    // 🔹 NUEVO: DTO para actualizar solo el nombre
+    record UpdateMeDto(String nombre) {}
 
     static class UserView {
         public Long id;
@@ -84,6 +86,67 @@ public class AuthController {
         var u = usuarios.findById(String.valueOf(uid));
         return (u == null) ? ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
                 : ResponseEntity.ok(new UserView(u));
+    }
+
+    // 🔹 NUEVO: actualizar SOLO el nombre del usuario autenticado
+    @PutMapping("/me")
+    public ResponseEntity<?> updateMe(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestBody UpdateMeDto dto) {
+
+        String token = extractBearer(authHeader);
+        if (token.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Long uid;
+        try {
+            uid = jwt.userId(token);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Usuario u = usuarios.findById(String.valueOf(uid));
+        if (u == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String nombre = dto.nombre();
+        if (nombre == null || nombre.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("INVALID_NAME");
+        }
+
+        u.setNombre(nombre.trim());
+        Usuario actualizado = usuarios.update(u);
+
+        return ResponseEntity.ok(new UserView(actualizado));
+    }
+
+    // 🔹 NUEVO: eliminar la cuenta del usuario autenticado (hard delete)
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMe(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+        String token = extractBearer(authHeader);
+        if (token.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Long uid;
+        try {
+            uid = jwt.userId(token);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Usuario u = usuarios.findById(String.valueOf(uid));
+        if (u == null) {
+            // Si ya no existe, tratamos como borrado ok
+            return ResponseEntity.noContent().build();
+        }
+
+        usuarios.deleteById(String.valueOf(uid));
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/logout")
